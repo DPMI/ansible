@@ -1,0 +1,32 @@
+- name: install/update LAMP and MArCd dependencies
+  apt:
+    name:
+      - apache2
+      - mysql-server
+      - libapache2-mod-php5
+      - libmysqlclient-dev
+      - rrdtool
+      - librrd-dev
+      - python-mysqldb
+      - php5-mysql
+    state: latest
+- user: name=marc
+
+# Database
+- mysql_db: name=marc state=present
+  register: database
+- mysql_user: name=marc password=konko priv=marc.*:ALL state=present
+
+# MArCD
+- git: dest=/root/marcd repo=https://github.com/DPMI/marcd.git
+  register: marcd_repo
+- script: rebuild.sh /root/marcd --with-iniparser=bundle
+  when: marcd_repo|changed
+- script: marcd_scripts.sh /root/marcd
+  when: marcd_repo|changed
+- template: src=marcd.conf dest=/etc/marc/marcd.conf owner=marc group=marc mode=0600
+
+# MArC web
+- name: update marc_web repo
+  git: dest=/root/marc_web repo=https://github.com/DPMI/marc_web.git
+- command: /root/marc_web/migrations/update_database.php

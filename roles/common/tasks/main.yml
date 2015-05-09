@@ -1,0 +1,15 @@
+- name: install/update packages
+  apt:
+    name:
+      - build-essential
+      - autoconf
+      - libtool
+      - libpcap-dev
+      - pkg-config
+      - git
+    state: latest
+- name: update libcap_utils repo
+  notify: rebuild libcap_utils
+  git:
+    dest: /root/libcap_utils
+    repo: https://github.com/DPMI/libcap_utils.git

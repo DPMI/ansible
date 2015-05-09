@@ -1,0 +1,6 @@
+---
+- hosts: marc
+  remote_user: root
+  roles:
+    - common
+    - marc

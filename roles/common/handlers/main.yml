@@ -1,4 +1,0 @@
-- name: rebuild libcap_utils
-  script: rebuild.sh /root/libcap_utils
-- name: rebuild marcd
-  script: rebuild.sh /root/marcd --with-iniparser=bundle

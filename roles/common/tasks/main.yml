@@ -8,8 +8,14 @@
       - pkg-config
       - git
     state: latest
+- file: path=/dpmi state=directory
+
+# libcap_utils
 - name: update libcap_utils repo
-  notify: rebuild libcap_utils
+  register: libcap_utils_repo
   git:
-    dest: /root/libcap_utils
+    dest: /dpmi/libcap_utils
     repo: https://github.com/DPMI/libcap_utils.git
+- name: rebuild libcap_utils
+  script: rebuild.sh /dpmi/libcap_utils
+  when: libcap_utils_repo|changed

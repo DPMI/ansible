@@ -8,9 +8,12 @@
       - rrdtool
       - librrd-dev
       - python-mysqldb
+      - php5-gd
       - php5-mysql
     state: latest
 - user: name=marc
+- name: Adding www-data to MArC group
+  user: name=www-data groups=marc append=yes
 
 # Database
 - mysql_db: name=marc state=present
@@ -18,15 +21,22 @@
 - mysql_user: name=marc password=konko priv=marc.*:ALL state=present
 
 # MArCD
-- git: dest=/root/marcd repo=https://github.com/DPMI/marcd.git
+- git: dest=/dpmi/marcd repo=https://github.com/DPMI/marcd.git
   register: marcd_repo
-- script: rebuild.sh /root/marcd --with-iniparser=bundle
+- script: rebuild.sh /dpmi/marcd --with-iniparser=bundle
   when: marcd_repo|changed
-- script: marcd_scripts.sh /root/marcd
+- script: marcd_scripts.sh /dpmi/marcd
   when: marcd_repo|changed
 - template: src=marcd.conf dest=/etc/marc/marcd.conf owner=marc group=marc mode=0600
 
 # MArC web
 - name: update marc_web repo
-  git: dest=/root/marc_web repo=https://github.com/DPMI/marc_web.git
-- command: /root/marc_web/migrations/update_database.php
+  git: dest=/dpmi/marc_web repo=https://github.com/DPMI/marc_web.git
+- command: /dpmi/marc_web/migrations/update_database.php
+- template: src=vhost.conf dest=/etc/apache2/sites-available/50-marcd.conf
+- template: src=config.php dest=/dpmi/marc_web/config.local.php
+- command: a2ensite 50-marcd
+- command: a2dissite 000-default
+- service: name=apache2 state=reloaded
+- file: path=/var/lib/marc state=directory group=marc mode=0775
+- file: path=/dpmi/marc_web/cache state=directory group=marc mode=0775

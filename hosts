@@ -1,0 +1,9 @@
+##Place the consumers IP/DNS here (0 or more)
+[consumers]
+
+
+##Place the MP IP/DNS here (0 or more)
+[mp]
+
+##Place the MArC IP/DNS (only one)
+[marc]
